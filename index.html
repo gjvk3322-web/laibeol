@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRICE RADAR v5.0 | 정밀 시공 견적 & 단가 분석기</title>
+    <title>PRICE RADAR v6.0 | 비포&애프터 정밀 시공 견적기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,10 +20,9 @@
         .input-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
         .form-label { display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 6px; }
         
-        /* 🌟 입력창 높이 및 스타일 완벽 통일 */
         .form-input { 
             width: 100%; 
-            height: 44px; /* 높이 강제 통일 */
+            height: 44px;
             border: 1px solid #cbd5e1; 
             border-radius: 6px; 
             padding: 0 12px; 
@@ -49,10 +48,12 @@
         .strike-price { text-decoration: line-through; color: #94a3b8; font-size: 0.75rem; font-weight: 400; }
         .event-price { color: #ef4444; font-weight: 900; font-size: 1rem; display: block; margin-top: 2px; }
         
-        .unit-price-highlight { font-weight: 800; color: #475569; }
-        .total-price-highlight { font-size: 1.1rem; font-weight: 900; color: #ef4444; background: #fef2f2; }
+        /* 🌟 새로 추가된 할인 전 총액 텍스트 스타일 */
+        .normal-total-highlight { font-weight: 700; color: #64748b; }
+        .normal-total-strike { text-decoration: line-through; color: #94a3b8; font-weight: 400; }
         
-        /* 🌟 시뮬레이터 영역 커스텀 */
+        .total-price-highlight { font-size: 1.15rem; font-weight: 900; color: #ef4444; background: #fef2f2; }
+        
         .control-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
         .room-box { background: white; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; }
         .dim-input { width: 100%; text-align: center; font-weight: 800; color: #1d4ed8; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; outline: none; transition: border-color 0.2s; }
@@ -63,8 +64,8 @@
 
     <div class="max-w-[1400px] mx-auto mb-6 flex justify-between items-end no-print">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">PRICE <span class="text-blue-600">RADAR v5.0</span></h1>
-            <p class="text-sm text-slate-500 mt-1 font-bold">mm 스펙 기반 & <span class="text-red-500">실측 평수(평)</span> 자동 계산 시뮬레이터 탑재</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">PRICE <span class="text-blue-600">RADAR v6.0</span></h1>
+            <p class="text-sm text-slate-500 mt-1 font-bold">1m² 단가 제외 & <span class="text-red-500">할인 전 총액 vs 최종 체감 견적</span> 비교 최적화</p>
         </div>
         <div class="flex gap-3">
             <button onclick="clearData()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-lg font-bold shadow-sm transition-all">
@@ -181,18 +182,20 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-7">
-                <div class="section-title"><i class="fas fa-table"></i> 체감 견적 순위표 <span class="text-[0.8rem] text-slate-400 font-normal ml-2">(총 시공 비용 기준 정렬)</span></div>
+                <div class="section-title"><i class="fas fa-table"></i> 체감 견적 순위표 <span class="text-[0.8rem] text-slate-400 font-normal ml-2">(최종 시공 비용 기준 정렬)</span></div>
                 <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-sm">
                     <table class="price-table">
                         <thead>
                             <tr>
                                 <th width="5%">순위</th>
-                                <th class="text-left" width="20%">업체명</th>
+                                <th class="text-left" width="18%">업체명</th>
                                 <th width="15%">크기(mm)<br><span class="text-[0.65rem] text-slate-400">가로x세로x두께</span></th>
-                                <th width="20%">장당 가격<br><span class="text-[0.65rem] text-red-400">정상가 ➔ 할인가</span></th>
-                                <th width="15%">1m²당 단가<br><span class="text-[0.65rem] text-slate-400">(할인가 기준)</span></th>
-                                <th width="20%" class="text-red-500 bg-red-50" title="각 공간별 필요 장수를 올림 처리하여 모두 더한 현실적인 최종 결제 금액">
-                                    <span id="target-pyeong-display" class="font-black">0</span>평 시공 시<br>총 체감 견적
+                                <th width="16%">장당 가격<br><span class="text-[0.65rem] text-red-400">정상가 ➔ 할인가</span></th>
+                                <th width="16%" class="text-slate-500 bg-slate-50">
+                                    할인 전 총 금액<br><span class="text-[0.65rem] font-normal">(정상가 기준)</span>
+                                </th>
+                                <th width="25%" class="text-red-500 bg-red-50">
+                                    <span id="target-pyeong-display" class="font-black">0</span>평 시공 시<br>최종 체감 견적
                                 </th>
                                 <th class="no-print" width="5%"></th>
                             </tr>
@@ -209,7 +212,7 @@
                     <canvas id="priceChart"></canvas>
                 </div>
                 <p class="text-center text-[0.75rem] text-slate-500 mt-3 font-medium">
-                    ※ <span class="text-red-500 font-bold">진한 막대</span>가 실제 결제 금액(체감가), <span class="text-slate-300 font-bold">흐린 막대</span>는 이벤트로 할인받은 혜택 금액입니다.
+                    ※ <span class="text-red-500 font-bold">진한 막대</span>가 실제 결제 금액(체감가), <span class="text-slate-300 font-bold">흐린 막대</span>는 이벤트로 할인받은 금액입니다.
                 </p>
             </div>
             
@@ -234,9 +237,8 @@
         }
 
         window.onload = () => {
-            // cm로 저장된 이전 버전 데이터와의 충돌을 막기 위해 새 키 사용
-            const saved = localStorage.getItem('nav_price_data_v5');
-            const savedDims = JSON.parse(localStorage.getItem('nav_dims_v5') || '{"lw":3500,"lh":4000,"cw":1200,"ch":3000,"kw":2000,"kh":3000}');
+            const saved = localStorage.getItem('nav_price_data_v6');
+            const savedDims = JSON.parse(localStorage.getItem('nav_dims_v6') || '{"lw":3500,"lh":4000,"cw":1200,"ch":3000,"kw":2000,"kh":3000}');
             
             document.getElementById('room-l-w').value = savedDims.lw;
             document.getElementById('room-l-h').value = savedDims.lh;
@@ -269,17 +271,14 @@
                 return alert("업체명, 가로(mm), 세로(mm), 정상가는 필수 입력값입니다.");
             }
 
-            // 🌟 mm 기준 면적 계산: 1m² = 1,000,000 mm²
             const areaM2 = (width * height) / 1000000;
-            const unitPriceNormal = Math.round(price / areaM2);
-            const unitPriceEvent = Math.round(eventPrice / areaM2);
 
             priceData.push({ 
                 id: Date.now(), isOurs, name, width, height, thickness, 
-                price, eventPrice, areaM2, unitPriceNormal, unitPriceEvent 
+                price, eventPrice, areaM2
             });
             
-            localStorage.setItem('nav_price_data_v5', JSON.stringify(priceData));
+            localStorage.setItem('nav_price_data_v6', JSON.stringify(priceData));
             
             document.getElementById('i-name').value = '';
             document.getElementById('i-width').value = '';
@@ -294,20 +293,19 @@
 
         function removeData(id) {
             priceData = priceData.filter(d => d.id !== id);
-            localStorage.setItem('nav_price_data_v5', JSON.stringify(priceData));
+            localStorage.setItem('nav_price_data_v6', JSON.stringify(priceData));
             updateDashboard();
         }
 
         function clearData() {
             if(confirm("모든 데이터를 지우시겠습니까?")) {
                 priceData = [];
-                localStorage.removeItem('nav_price_data_v5');
+                localStorage.removeItem('nav_price_data_v6');
                 updateDashboard();
             }
         }
 
         function updateDashboard() {
-            // 방별 치수 가져오기 (mm)
             const lw = parseFloat(document.getElementById('room-l-w').value) || 0;
             const lh = parseFloat(document.getElementById('room-l-h').value) || 0;
             const cw = parseFloat(document.getElementById('room-c-w').value) || 0;
@@ -315,26 +313,20 @@
             const kw = parseFloat(document.getElementById('room-k-w').value) || 0;
             const kh = parseFloat(document.getElementById('room-k-h').value) || 0;
             
-            // 치수 저장
-            localStorage.setItem('nav_dims_v5', JSON.stringify({lw, lh, cw, ch, kw, kh}));
+            localStorage.setItem('nav_dims_v6', JSON.stringify({lw, lh, cw, ch, kw, kh}));
 
-            // 방별 면적 계산 (m²)
             const areaL = (lw * lh) / 1000000;
             const areaC = (cw * ch) / 1000000;
             const areaK = (kw * kh) / 1000000;
             
             const totalM2 = areaL + areaC + areaK;
-            // 평수 환산 (1m² = 0.3025평, 또는 m² / 3.3058)
             const totalPyeong = (totalM2 / 3.3058).toFixed(1);
             
-            // 화면 표시 업데이트
             document.getElementById('total-pyeong').innerText = totalPyeong;
             document.getElementById('total-m2').innerText = `(${totalM2.toFixed(2)} m²)`;
             document.getElementById('target-pyeong-display').innerText = totalPyeong;
 
-            // 정밀 시공 견적 계산
             priceData.forEach(item => {
-                // 각 공간별로 필요한 매트 장수 산출 (올림 처리하여 현실성 반영)
                 const piecesLiving = Math.ceil(areaL / item.areaM2);
                 const piecesCorridor = Math.ceil(areaC / item.areaM2);
                 const piecesKitchen = Math.ceil(areaK / item.areaM2);
@@ -360,9 +352,14 @@
                     const thickDisplay = item.thickness ? ` x ${item.thickness}T` : '';
                     
                     let priceDisplay = '';
+                    let normalTotalClass = 'normal-total-highlight'; // 기본값 (할인 없을 때)
+                    
                     if(item.price > item.eventPrice) {
+                        // 할인이 들어간 경우
                         priceDisplay = `<span class="strike-price">${item.price.toLocaleString()}원</span><span class="event-price">${item.eventPrice.toLocaleString()}원</span>`;
+                        normalTotalClass = 'normal-total-strike'; // 할인 전 금액에 취소선 긋기
                     } else {
+                        // 할인 없는 경우
                         priceDisplay = `<span class="font-bold text-slate-700">${item.price.toLocaleString()}원</span>`;
                     }
                     
@@ -372,11 +369,16 @@
                             <td class="text-left">${badge}<br>${item.name}</td>
                             <td class="text-[0.8rem]">${item.width} x ${item.height}${thickDisplay}</td>
                             <td>${priceDisplay}</td>
-                            <td class="unit-price-highlight">${item.unitPriceEvent.toLocaleString()}원</td>
+                            
+                            <td class="${normalTotalClass}">
+                                ${item.totalCostNormal.toLocaleString()}원
+                            </td>
+                            
                             <td class="total-price-highlight">
                                 ${item.totalCostEvent.toLocaleString()}원<br>
                                 <span class="text-[0.7rem] text-slate-500 font-normal">(${item.requiredPieces}장 필요)</span>
                             </td>
+                            
                             <td class="no-print"><button onclick="removeData(${item.id})" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
                         </tr>
                     `;
@@ -465,7 +467,7 @@
             const element = document.getElementById('capture-area');
             const opt = { 
                 margin: 10, 
-                filename: `Price_Radar_v5_Analysis.pdf`, 
+                filename: `Price_Radar_v6_Analysis.pdf`, 
                 image: { type: 'jpeg', quality: 1 }, 
                 html2canvas: { scale: 1.5, useCORS: true }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
