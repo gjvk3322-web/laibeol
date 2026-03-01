@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRICE RADAR v4.0 | 초정밀 공간별 견적 분석기</title>
+    <title>PRICE RADAR v5.0 | 정밀 시공 견적 & 단가 분석기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,7 +19,20 @@
 
         .input-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
         .form-label { display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 6px; }
-        .form-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; font-size: 0.9rem; outline: none; transition: all 0.2s; }
+        
+        /* 🌟 입력창 높이 및 스타일 완벽 통일 */
+        .form-input { 
+            width: 100%; 
+            height: 44px; /* 높이 강제 통일 */
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px; 
+            padding: 0 12px; 
+            font-size: 0.9rem; 
+            outline: none; 
+            transition: all 0.2s; 
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
         .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
         
         .price-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -39,18 +52,19 @@
         .unit-price-highlight { font-weight: 800; color: #475569; }
         .total-price-highlight { font-size: 1.1rem; font-weight: 900; color: #ef4444; background: #fef2f2; }
         
-        /* 🌟 업그레이드된 컨트롤 바 */
-        .control-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px 24px; margin-bottom: 20px; }
-        .area-input { width: 70px; text-align: center; font-weight: 800; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 6px; padding: 6px; outline: none; transition: border-color 0.2s; }
-        .area-input:focus { border-color: #2563eb; }
+        /* 🌟 시뮬레이터 영역 커스텀 */
+        .control-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .room-box { background: white; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; }
+        .dim-input { width: 100%; text-align: center; font-weight: 800; color: #1d4ed8; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; outline: none; transition: border-color 0.2s; }
+        .dim-input:focus { border-color: #2563eb; }
     </style>
 </head>
 <body class="py-10 px-4">
 
     <div class="max-w-[1400px] mx-auto mb-6 flex justify-between items-end no-print">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">PRICE <span class="text-blue-600">RADAR v4.0</span></h1>
-            <p class="text-sm text-slate-500 mt-1 font-bold">공간별 분리 계산 & 할인폭 시각화가 완벽히 적용된 실무용 견적기</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">PRICE <span class="text-blue-600">RADAR v5.0</span></h1>
+            <p class="text-sm text-slate-500 mt-1 font-bold">mm 스펙 기반 & <span class="text-red-500">실측 평수(평)</span> 자동 계산 시뮬레이터 탑재</p>
         </div>
         <div class="flex gap-3">
             <button onclick="clearData()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 px-4 py-2.5 rounded-lg font-bold shadow-sm transition-all">
@@ -65,12 +79,12 @@
     <div class="dashboard-container" id="capture-area">
         
         <div class="input-card mb-6 no-print border-l-4 border-l-blue-500">
-            <div class="section-title mb-4 border-none pb-0"><i class="fas fa-calculator"></i> 가격 및 스펙 데이터 입력</div>
+            <div class="section-title mb-4 border-none pb-0"><i class="fas fa-calculator"></i> 매트 스펙(mm) 및 가격 데이터 입력</div>
             
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end mb-4">
                 <div>
                     <label class="form-label">구분</label>
-                    <select id="i-type" class="form-input bg-white font-bold text-blue-700">
+                    <select id="i-type" class="form-input font-bold text-blue-700">
                         <option value="comp">경쟁사</option>
                         <option value="ours">⭐ 우리 회사</option>
                     </select>
@@ -80,16 +94,16 @@
                     <input type="text" id="i-name" class="form-input" placeholder="예: A사">
                 </div>
                 <div>
-                    <label class="form-label">가로 폭 (cm)</label>
-                    <input type="number" id="i-width" class="form-input" placeholder="예: 50">
+                    <label class="form-label">가로 폭 (mm)</label>
+                    <input type="number" id="i-width" class="form-input" placeholder="예: 500">
                 </div>
                 <div>
-                    <label class="form-label">세로 길이 (cm)</label>
-                    <input type="number" id="i-height" class="form-input" placeholder="예: 50">
+                    <label class="form-label">세로 길이 (mm)</label>
+                    <input type="number" id="i-height" class="form-input" placeholder="예: 500">
                 </div>
                 <div>
-                    <label class="form-label">두께 (cm)</label>
-                    <input type="number" step="0.1" id="i-thickness" class="form-input" placeholder="예: 2.1">
+                    <label class="form-label">두께 (mm)</label>
+                    <input type="number" step="1" id="i-thickness" class="form-input" placeholder="예: 21">
                 </div>
             </div>
 
@@ -103,38 +117,63 @@
                     <input type="number" id="i-event-price" class="form-input border-red-200 focus:border-red-500" placeholder="예: 13950 (없으면 비워두세요)">
                 </div>
                 <div>
-                    <button onclick="addData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold shadow transition-all h-[42px]">
+                    <button onclick="addData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold shadow transition-all h-[44px]">
                         목록에 추가하기
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="control-bar no-print flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-home text-blue-500 text-xl"></i>
-                <span class="font-extrabold text-blue-900 text-lg">우리집 맞춤 견적 시뮬레이터</span>
+        <div class="control-bar no-print">
+            <div class="flex items-center gap-3 mb-4 border-b border-blue-200 pb-3">
+                <i class="fas fa-ruler-combined text-blue-500 text-xl"></i>
+                <span class="font-extrabold text-blue-900 text-lg">고객집 실측 치수(mm) 기반 견적 시뮬레이터</span>
+                <span class="text-sm text-blue-600 ml-2">줄자로 잰 치수를 입력하면 필요한 평수와 매트 장수가 자동 계산됩니다.</span>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-blue-200 shadow-sm">
-                    <span class="text-sm font-bold text-slate-600">🛋️ 거실:</span>
-                    <input type="number" id="area-living" class="area-input" value="10" onchange="updateDashboard()">
-                    <span class="text-xs text-slate-500">m²</span>
-                </div>
-                <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-blue-200 shadow-sm">
-                    <span class="text-sm font-bold text-slate-600">🚶 복도:</span>
-                    <input type="number" id="area-corridor" class="area-input" value="4" onchange="updateDashboard()">
-                    <span class="text-xs text-slate-500">m²</span>
-                </div>
-                <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-blue-200 shadow-sm">
-                    <span class="text-sm font-bold text-slate-600">🍳 주방:</span>
-                    <input type="number" id="area-kitchen" class="area-input" value="5" onchange="updateDashboard()">
-                    <span class="text-xs text-slate-500">m²</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="room-box shadow-sm">
+                    <div class="text-sm font-bold text-slate-700 mb-2 flex justify-between">
+                        <span>🛋️ 거실 치수</span>
+                        <span class="text-xs text-slate-400">(단위: mm)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="room-l-w" class="dim-input" value="3500" onchange="updateDashboard()" placeholder="가로">
+                        <span class="text-slate-400 font-bold">x</span>
+                        <input type="number" id="room-l-h" class="dim-input" value="4000" onchange="updateDashboard()" placeholder="세로">
+                    </div>
                 </div>
                 
-                <div class="ml-2 pl-4 border-l-2 border-blue-200 font-black text-slate-700 text-lg">
-                    총 <span id="total-area-display" class="text-2xl text-red-500 px-1">19</span> m²
+                <div class="room-box shadow-sm">
+                    <div class="text-sm font-bold text-slate-700 mb-2 flex justify-between">
+                        <span>🚶 복도 치수</span>
+                        <span class="text-xs text-slate-400">(단위: mm)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="room-c-w" class="dim-input" value="1200" onchange="updateDashboard()" placeholder="가로">
+                        <span class="text-slate-400 font-bold">x</span>
+                        <input type="number" id="room-c-h" class="dim-input" value="3000" onchange="updateDashboard()" placeholder="세로">
+                    </div>
+                </div>
+
+                <div class="room-box shadow-sm">
+                    <div class="text-sm font-bold text-slate-700 mb-2 flex justify-between">
+                        <span>🍳 주방 치수</span>
+                        <span class="text-xs text-slate-400">(단위: mm)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="room-k-w" class="dim-input" value="2000" onchange="updateDashboard()" placeholder="가로">
+                        <span class="text-slate-400 font-bold">x</span>
+                        <input type="number" id="room-k-h" class="dim-input" value="3000" onchange="updateDashboard()" placeholder="세로">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-900 text-white rounded-lg p-4 flex justify-between items-center shadow-inner">
+                <span class="font-bold">시공해야 할 총면적:</span>
+                <div class="text-right">
+                    <span class="text-3xl font-black text-yellow-400" id="total-pyeong">0.0</span> <span class="text-lg font-bold text-yellow-400 mr-3">평</span>
+                    <span class="text-sm text-blue-200" id="total-m2">(0.00 m²)</span>
                 </div>
             </div>
         </div>
@@ -142,18 +181,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-7">
-                <div class="section-title"><i class="fas fa-table"></i> 체감 견적 순위표 <span class="text-[0.8rem] text-slate-400 font-normal ml-2">(거실+복도+주방 총비용 기준 정렬)</span></div>
+                <div class="section-title"><i class="fas fa-table"></i> 체감 견적 순위표 <span class="text-[0.8rem] text-slate-400 font-normal ml-2">(총 시공 비용 기준 정렬)</span></div>
                 <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-sm">
                     <table class="price-table">
                         <thead>
                             <tr>
                                 <th width="5%">순위</th>
                                 <th class="text-left" width="20%">업체명</th>
-                                <th width="15%">크기(cm)<br><span class="text-[0.65rem] text-slate-400">가로x세로x두께</span></th>
+                                <th width="15%">크기(mm)<br><span class="text-[0.65rem] text-slate-400">가로x세로x두께</span></th>
                                 <th width="20%">장당 가격<br><span class="text-[0.65rem] text-red-400">정상가 ➔ 할인가</span></th>
                                 <th width="15%">1m²당 단가<br><span class="text-[0.65rem] text-slate-400">(할인가 기준)</span></th>
                                 <th width="20%" class="text-red-500 bg-red-50" title="각 공간별 필요 장수를 올림 처리하여 모두 더한 현실적인 최종 결제 금액">
-                                    총 시공 비용<br><span class="text-[0.65rem] text-slate-500 font-normal">(거실+복도+주방)</span>
+                                    <span id="target-pyeong-display" class="font-black">0</span>평 시공 시<br>총 체감 견적
                                 </th>
                                 <th class="no-print" width="5%"></th>
                             </tr>
@@ -195,12 +234,16 @@
         }
 
         window.onload = () => {
-            const saved = localStorage.getItem('nav_price_data_v4');
-            const savedAreas = JSON.parse(localStorage.getItem('nav_areas_v4') || '{"living":10,"corridor":4,"kitchen":5}');
+            // cm로 저장된 이전 버전 데이터와의 충돌을 막기 위해 새 키 사용
+            const saved = localStorage.getItem('nav_price_data_v5');
+            const savedDims = JSON.parse(localStorage.getItem('nav_dims_v5') || '{"lw":3500,"lh":4000,"cw":1200,"ch":3000,"kw":2000,"kh":3000}');
             
-            document.getElementById('area-living').value = savedAreas.living;
-            document.getElementById('area-corridor').value = savedAreas.corridor;
-            document.getElementById('area-kitchen').value = savedAreas.kitchen;
+            document.getElementById('room-l-w').value = savedDims.lw;
+            document.getElementById('room-l-h').value = savedDims.lh;
+            document.getElementById('room-c-w').value = savedDims.cw;
+            document.getElementById('room-c-h').value = savedDims.ch;
+            document.getElementById('room-k-w').value = savedDims.kw;
+            document.getElementById('room-k-h').value = savedDims.kh;
 
             if(saved) {
                 priceData = JSON.parse(saved);
@@ -219,14 +262,15 @@
             let eventPriceInput = document.getElementById('i-event-price').value;
             let eventPrice = parseFloat(eventPriceInput);
             if(isNaN(eventPrice) || eventPriceInput.trim() === '') {
-                eventPrice = price; // 할인가 없으면 정상가와 동일
+                eventPrice = price; 
             }
 
             if(!name || isNaN(width) || isNaN(height) || isNaN(price)) {
-                return alert("업체명, 가로, 세로, 정상가는 필수 입력값입니다.");
+                return alert("업체명, 가로(mm), 세로(mm), 정상가는 필수 입력값입니다.");
             }
 
-            const areaM2 = (width * height) / 10000;
+            // 🌟 mm 기준 면적 계산: 1m² = 1,000,000 mm²
+            const areaM2 = (width * height) / 1000000;
             const unitPriceNormal = Math.round(price / areaM2);
             const unitPriceEvent = Math.round(eventPrice / areaM2);
 
@@ -235,7 +279,7 @@
                 price, eventPrice, areaM2, unitPriceNormal, unitPriceEvent 
             });
             
-            localStorage.setItem('nav_price_data_v4', JSON.stringify(priceData));
+            localStorage.setItem('nav_price_data_v5', JSON.stringify(priceData));
             
             document.getElementById('i-name').value = '';
             document.getElementById('i-width').value = '';
@@ -250,35 +294,50 @@
 
         function removeData(id) {
             priceData = priceData.filter(d => d.id !== id);
-            localStorage.setItem('nav_price_data_v4', JSON.stringify(priceData));
+            localStorage.setItem('nav_price_data_v5', JSON.stringify(priceData));
             updateDashboard();
         }
 
         function clearData() {
             if(confirm("모든 데이터를 지우시겠습니까?")) {
                 priceData = [];
-                localStorage.removeItem('nav_price_data_v4');
+                localStorage.removeItem('nav_price_data_v5');
                 updateDashboard();
             }
         }
 
         function updateDashboard() {
-            // 공간 면적 가져오기
-            const living = parseFloat(document.getElementById('area-living').value) || 0;
-            const corridor = parseFloat(document.getElementById('area-corridor').value) || 0;
-            const kitchen = parseFloat(document.getElementById('area-kitchen').value) || 0;
+            // 방별 치수 가져오기 (mm)
+            const lw = parseFloat(document.getElementById('room-l-w').value) || 0;
+            const lh = parseFloat(document.getElementById('room-l-h').value) || 0;
+            const cw = parseFloat(document.getElementById('room-c-w').value) || 0;
+            const ch = parseFloat(document.getElementById('room-c-h').value) || 0;
+            const kw = parseFloat(document.getElementById('room-k-w').value) || 0;
+            const kh = parseFloat(document.getElementById('room-k-h').value) || 0;
             
-            const totalArea = living + corridor + kitchen;
-            document.getElementById('total-area-display').innerText = totalArea;
+            // 치수 저장
+            localStorage.setItem('nav_dims_v5', JSON.stringify({lw, lh, cw, ch, kw, kh}));
 
-            // 면적 저장
-            localStorage.setItem('nav_areas_v4', JSON.stringify({living, corridor, kitchen}));
+            // 방별 면적 계산 (m²)
+            const areaL = (lw * lh) / 1000000;
+            const areaC = (cw * ch) / 1000000;
+            const areaK = (kw * kh) / 1000000;
+            
+            const totalM2 = areaL + areaC + areaK;
+            // 평수 환산 (1m² = 0.3025평, 또는 m² / 3.3058)
+            const totalPyeong = (totalM2 / 3.3058).toFixed(1);
+            
+            // 화면 표시 업데이트
+            document.getElementById('total-pyeong').innerText = totalPyeong;
+            document.getElementById('total-m2').innerText = `(${totalM2.toFixed(2)} m²)`;
+            document.getElementById('target-pyeong-display').innerText = totalPyeong;
 
-            // 🌟 정밀 시공 견적 계산 로직 (공간별 필요 장수를 각각 올림 처리하여 합산)
+            // 정밀 시공 견적 계산
             priceData.forEach(item => {
-                const piecesLiving = Math.ceil(living / item.areaM2);
-                const piecesCorridor = Math.ceil(corridor / item.areaM2);
-                const piecesKitchen = Math.ceil(kitchen / item.areaM2);
+                // 각 공간별로 필요한 매트 장수 산출 (올림 처리하여 현실성 반영)
+                const piecesLiving = Math.ceil(areaL / item.areaM2);
+                const piecesCorridor = Math.ceil(areaC / item.areaM2);
+                const piecesKitchen = Math.ceil(areaK / item.areaM2);
                 
                 item.requiredPieces = piecesLiving + piecesCorridor + piecesKitchen;
                 
@@ -286,7 +345,7 @@
                 item.totalCostEvent = item.requiredPieces * item.eventPrice;
             });
 
-            // 할인가 반영 총 시공 비용이 저렴한 순서대로 정렬
+            // 할인가 반영 총 시공 비용 저렴한 순 정렬
             priceData.sort((a, b) => a.totalCostEvent - b.totalCostEvent);
 
             const tbody = document.getElementById('table-body');
@@ -327,7 +386,6 @@
             renderChart();
         }
 
-        // 🌟 수정된 누적(Stacked) 막대그래프 렌더링
         function renderChart() {
             const ctx = document.getElementById('priceChart').getContext('2d');
             
@@ -337,19 +395,15 @@
             }
 
             const labels = priceData.map(d => d.name);
-            
-            // 실제 결제 금액 (진한 막대)
             const eventCosts = priceData.map(d => d.totalCostEvent);
-            
-            // 할인 받은 혜택 금액 (흐린 막대) -> 이벤트가 없으면 0
             const discountAmounts = priceData.map(d => d.totalCostNormal - d.totalCostEvent);
             
-            const colorEventOur = 'rgba(239, 68, 68, 1)';   // 우리회사 결제가: 진한 빨강
-            const colorEventComp = 'rgba(71, 85, 105, 1)';  // 타사 결제가: 진한 회색
+            const colorEventOur = 'rgba(239, 68, 68, 1)';   
+            const colorEventComp = 'rgba(71, 85, 105, 1)';  
             const bgEvent = priceData.map(d => d.isOurs ? colorEventOur : colorEventComp);
 
-            const colorDiscOur = 'rgba(254, 202, 202, 0.4)';  // 우리회사 할인분: 흐린 빨강
-            const colorDiscComp = 'rgba(226, 232, 240, 0.5)'; // 타사 할인분: 흐린 회색
+            const colorDiscOur = 'rgba(254, 202, 202, 0.4)';  
+            const colorDiscComp = 'rgba(226, 232, 240, 0.5)'; 
             const bgDiscount = priceData.map(d => d.isOurs ? colorDiscOur : colorDiscComp);
 
             if(myChart) {
@@ -362,16 +416,16 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: '최종 결제 금액',
+                            label: '최종 결제 금액 (체감가)',
                             data: eventCosts,
                             backgroundColor: bgEvent,
-                            stack: 'Stack 0', // 스택 그룹화
+                            stack: 'Stack 0', 
                         },
                         {
                             label: '이벤트 할인 혜택',
                             data: discountAmounts,
                             backgroundColor: bgDiscount,
-                            stack: 'Stack 0', // 스택 그룹화
+                            stack: 'Stack 0', 
                         }
                     ]
                 },
@@ -381,13 +435,13 @@
                     indexAxis: 'y',
                     scales: {
                         x: {
-                            stacked: true, // X축 누적 설정
+                            stacked: true, 
                             ticks: {
                                 callback: function(value) { return (value/10000).toLocaleString() + '만'; }
                             }
                         },
                         y: {
-                            stacked: true  // Y축 누적 설정
+                            stacked: true  
                         }
                     },
                     plugins: {
@@ -411,7 +465,7 @@
             const element = document.getElementById('capture-area');
             const opt = { 
                 margin: 10, 
-                filename: `Price_Radar_v4_Analysis.pdf`, 
+                filename: `Price_Radar_v5_Analysis.pdf`, 
                 image: { type: 'jpeg', quality: 1 }, 
                 html2canvas: { scale: 1.5, useCORS: true }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
